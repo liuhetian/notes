@@ -1,4 +1,4 @@
-# 控制版本
+# GIT笔记
 
 2024到来，要优化代码，先从版本控制开始，现在的控制方法很呆：
 ```
@@ -22,6 +22,8 @@ lht_p2_bargain/
 ```bash
 git init  # 初始化
 git log  # 看版本
+git log --pretty=oneline # 简洁
+git log --oneline  # 同上
 git config --global user.name "Liu Hetian"  # 名字
 git config --global user.email "liuhetian@nibirutech.com"  # 邮箱
 ```
@@ -43,7 +45,11 @@ git log --pretty=oneline
 git status  -- 查看有哪些文件可以放
 git diff <filename>
 git add <filename>
+
+# 新版本
 git restore --staged <filename>  # 把什么环境变量放进去了，赶紧拿出来；下一次再提交
+# 老版本
+git reset HEAD <filename>
 ```
 
 ### 从暂存区复原工作区
@@ -67,9 +73,10 @@ git commit -m "版本的新功能"
 git tag <版本号>
 ```
 
-### 查看标签
+### 给版本一个标签
 ```bash
-git tag
+git tag  # 查看现在有的所有标签
+git tag <版本号>  # 给这个版本一个标签，例如版本号
 
 ```
 
