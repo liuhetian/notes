@@ -1,6 +1,8 @@
 # python输出
 
 有些时候想输出更好看的内容，例如颜色啥的，
+看下来感觉没有真的需要的场景，先搁置。
+
 ## print
 从print开始，常用的是控制分隔符sep和结束的end，在流式传输的时候用到过flush参数，如果是True就不会缓存直接输出，
 
@@ -13,4 +15,7 @@ print(value,...,sep='',end='\n',file=sys.stdout,flush=False)
 
 ## rich
 
-## ...
+有46k个star的项目
+
+
+## colorama
