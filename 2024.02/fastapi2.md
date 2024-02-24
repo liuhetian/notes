@@ -16,3 +16,53 @@ async def f():
     return {"Hello": "World"}
 ```
 
+上面的例子比较简单还可以理解，但是如果把`print`换成一个运行的线程感觉就会很神奇，相当于一个库(`main.py`)不是静态的了
+
+
+```python
+from fastapi import FastAPI
+app = FastAPI()
+
+#print('这行代码会正常运行吗？')
+import threading, time
+from datetime import datetime
+
+# 为线程定义一个函数
+def f():
+    global t
+    for i in range(20):
+        time.sleep(5)
+        print(i)
+        t = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+thread = threading.Thread(target=f)
+thread.start()
+
+@app.get("/")
+async def f():
+    return {"data": "Hello World!", 'time': t}
+```
+
+```bash
+(base) root@VM-4-2-ubuntu:/home/ubuntu/main/2.24# uvicorn test2:app --host=0.0.0.0 --port=8000
+INFO:     Started server process [3810872]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+0
+1
+2
+```
+
+```
+# 127.0.0.1：8000
+{"data":"Hello World!","time":"2024-02-24 10:15:10"}
+{"data":"Hello World!","time":"2024-02-24 10:15:15"} 
+{"data":"Hello World!","time":"2024-02-24 10:15:20"}
+...
+{"data":"Hello World!","time":"2024-02-24 10:15:50"}
+```
+
+所以的确可以通过这种方式来定时更新环境变量，感觉好神奇啊
+
+(发现个问题，子线程执行结束之前，ctrl+C关闭不了进程？)
