@@ -154,7 +154,12 @@ while True:
     time.sleep(5)
 ```
 
-### 使用fastapi生命周期
+## 使用fastapi生命周期
+
+### 简单实现
+
+虽然不清楚下面的代码为什么可以运行，但就是可以运行，
+在协程函数里面`create_task`，不是很懂
 
 ```python
 from fastapi import FastAPI
@@ -171,7 +176,7 @@ async def update_config():
     while True:
         await asyncio.sleep(5)
         update()
-        
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     update()
