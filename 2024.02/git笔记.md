@@ -24,8 +24,8 @@ git init  # 初始化
 git log  # 看版本
 git log --pretty=oneline # 简洁
 git log --oneline  # 同上
-git config --global user.name "Liu Hetian"  # 名字
-git config --global user.email "liuhetian@nibirutech.com"  # 邮箱
+git config user.name "Liu Hetian"  # 名字
+git config user.email "liuhetian@nibirutech.com"  # 邮箱
 ```
 
 ### 查看变化与版本
