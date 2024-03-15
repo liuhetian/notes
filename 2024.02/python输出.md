@@ -19,3 +19,9 @@ print(value,...,sep='',end='\n',file=sys.stdout,flush=False)
 
 
 ## colorama
+
+
+## pretty errors
+
+刷到一个专门处理异常输出的库
+[pretty errors](https://github.com/onelivesleft/PrettyErrors)
