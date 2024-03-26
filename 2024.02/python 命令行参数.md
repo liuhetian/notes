@@ -71,14 +71,14 @@ import click
 @click.command()
 @click.option("--count", default=1, help="重复多少次")
 @click.option("--name", prompt="Your name", help="打招呼的名字是什么")
-def hello(count, name):
+def main(count, name):
     """这个脚本的用途是xxx"""
     for _ in range(count):
         print(f"Hello, {name}!")
 
 if __name__ == '__main__':
     print(__doc__)
-    hello()
+    main()
 ```
 
 ## typer
