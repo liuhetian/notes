@@ -57,6 +57,30 @@ def get_params(int_, str_, bool_):
 
 ```
 
+以后线上脚本就用这个模版，click库作为程序入口
+
+```python
+"""
+这个脚本的用途是xxx
+线上应该使用xxx命令运行
+可以使用python main.py --help命令查看更多选项
+"""
+
+import click
+
+@click.command()
+@click.option("--count", default=1, help="重复多少次")
+@click.option("--name", prompt="Your name", help="打招呼的名字是什么")
+def hello(count, name):
+    """这个脚本的用途是xxx"""
+    for _ in range(count):
+        print(f"Hello, {name}!")
+
+if __name__ == '__main__':
+    print(__doc__)
+    hello()
+```
+
 ## typer
 
 在click之上进行一层封装
