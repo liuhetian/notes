@@ -133,7 +133,7 @@ env/
 .env
 ```
 
-#### 删除库中的文件
+### 删除库中的文件
 有可能新建了一个不该被上传到git的文件，例如虚拟环境env/, 或者密码文件.env, 要弥补问题不可能删掉本地文件再git add，这时候需要手动删除版本库里的东西
 下面的命令会直接在暂存区和版本库里一起删除，删不删工作区取决于`--cached`选项
 ```bash
@@ -142,6 +142,19 @@ git rm --cached <filename>
 # 如果用下面的命令会把工作区的文件也给删掉，感觉不好用
 git rm <filename>
 ```
+
+### 处理冲突
+有个情况我经常遇到，代码写完了想备份到git，又在gitlab里创建仓库并新建README，这时候就会发现由于README新建是一次提交，导致回到本地无法push，也无法pull，所以需要下面的`--allow-unrelated-histories`
+
+```bash
+git init
+vi .gitignore
+git remote add origin <地址>
+
+git pull origin master --allow-unrelated-histories
+git push --set-upstream origin master
+```
+
 
 ## 分支
 ```bash
