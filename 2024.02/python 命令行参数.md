@@ -7,7 +7,51 @@
 4. 线程数量
 5. etc...
 
-很多配置脚本刚写好还记得，但是久了就真的一点印象没有
+很多配置脚本刚写好还记得，但是久了就真的一点印象没有，所以设想2种方式来运行脚本
+
+1. python main.py a b c
+   默认的运行方式
+2. python main.py
+   有可能会临时手动运行该脚本，传入参数就可能出错，所以希望脚本用pydantic验证命令行参数是否符合要求，如果不符合要求就自动启用prompt_toolkit来收集参数
+
+## prompt_toolkit
+
+找了两个月最终确定完美符合需求的方法，
+
+不符合要求就无法enter
+
+稍微要注意一下ValidationError的用法，有message和cursor_position两个参数，
+
+
+```
+from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit import prompt
+
+
+class StrValidator(Validator):
+    def validate(self, document):
+        text = document.text
+
+        if len(text) < 3:
+            raise ValidationError(message='太短了', cursor_position=len(text))
+        
+        if not text.endswith('test'):
+            raise ValidationError(message='结尾不是test', cursor_position=len(text))
+            
+s = prompt('Give a str: ', validator=StrValidator())
+print('You said: %s' % s)
+```
+
+## pydantic
+
+[pydantic](https://github.com/pydantic/pydantic)(18k)
+
+
+但我设想的场景里：
+
+
+
+## 其他办法
 
 ## 原生
 感觉就是调用了$0, $1, $2, $3？
@@ -84,6 +128,8 @@ if __name__ == '__main__':
 ## typer
 
 在click之上进行一层封装
+
+
 
 
 
