@@ -76,7 +76,7 @@ validator2 = Validator.from_callable(
 )
 
 def get_arg():
-    flag = 0
+    args = None
     try:
         parser = argparse.ArgumentParser(description="这是一个示例脚本，说明如何使用argparse处理命令行参数。")
         parser.add_argument("param1", type=lambda x: x if is_number(x) else 1/0, help="第一个参数的说明")
@@ -85,15 +85,11 @@ def get_arg():
     except SystemExit as e:
         if e.code == 0:
             raise  # -h参数结束程序
-        flag = 1
     except ValidationError as e:
         print(e.message)
-        flag = 1
     except:
         print('参数填写不正确，请重新填写：')
-        flag = 1
-    
-    if flag:
+    if args is None:
         arg1 = prompt("param1(整数): ", default="1.0", validator=validator2)
         arg2 = prompt("param2: ", validator=validator1)
         args = SimpleNamespace(param1=arg1, param2=arg2)
