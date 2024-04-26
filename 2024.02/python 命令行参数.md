@@ -47,7 +47,6 @@ print('You said: %s' % s)
 
 ```python
 # b.py
-
 import argparse
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt
@@ -58,16 +57,17 @@ def validate(text):
         raise ValidationError(message='太短了', cursor_position=len(text)) # InputError('太短了')
     if not text.endswith('test'):
         raise ValidationError(message='结尾不是test', cursor_position=len(text)) # InputError('结尾不是test')
-    return text
+    return True
        
+def is_number(text):
+    return text.isdigit() and (0 <= eval(text) < 15)
+
+
 validator1 = Validator.from_callable(
     validate,
     error_message='长度大于4，并且以test结尾',
     move_cursor_to_end=True
 )
-
-def is_number(text):
-    return text.isdigit()
 
 validator2 = Validator.from_callable(
     is_number,
@@ -76,18 +76,24 @@ validator2 = Validator.from_callable(
 )
 
 def get_arg():
+    flag = 0
     try:
         parser = argparse.ArgumentParser(description="这是一个示例脚本，说明如何使用argparse处理命令行参数。")
-        parser.add_argument("param1", type=int, help="第一个参数的说明")
-        parser.add_argument("param2", type=validate, help="第二个参数的说明")
+        parser.add_argument("param1", type=lambda x: x if is_number(x) else 1/0, help="第一个参数的说明")
+        parser.add_argument("param2", type=lambda x: x if validate(x) else 1/0, help="第二个参数的说明")
         args = parser.parse_args()
     except SystemExit as e:
         if e.code == 0:
             raise  # -h参数结束程序
-        arg1 = prompt("param1(整数): ", default="1.0", validator=validator2)
-        arg2 = prompt("param2: ", validator=validator1)
-        args = SimpleNamespace(param1=arg1, param2=arg2)
+        flag = 1
+    except ValidationError as e:
+        print(e.message)
+        flag = 1
     except:
+        print('参数填写不正确，请重新填写：')
+        flag = 1
+    
+    if flag:
         arg1 = prompt("param1(整数): ", default="1.0", validator=validator2)
         arg2 = prompt("param2: ", validator=validator1)
         args = SimpleNamespace(param1=arg1, param2=arg2)
