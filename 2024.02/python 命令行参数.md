@@ -9,10 +9,9 @@
 
 很多配置脚本刚写好还记得，但是久了就真的一点印象没有，所以设想2种方式来运行脚本
 
-1. python main.py a b c
-   默认的运行方式
-2. python main.py
-   有可能会临时手动运行该脚本，传入参数就可能出错，所以希望脚本用pydantic验证命令行参数是否符合要求，如果不符合要求就自动启用prompt_toolkit来收集参数
+1. python main.py a b c （默认的运行方式）
+2. python main.py （有可能会临时手动运行该脚本，传入参数就可能出错，所以希望脚本用pydantic验证命令行参数是否符合要求，如果不符合要求就自动启用prompt_toolkit来收集参数）
+3. 
 
 ## prompt_toolkit
 
@@ -42,13 +41,74 @@ s = prompt('Give a str: ', validator=StrValidator())
 print('You said: %s' % s)
 ```
 
-## pydantic
+## 实践方案
 
 [pydantic](https://github.com/pydantic/pydantic)(18k)
 
+```python
+# b.py
 
-但我设想的场景里：
+import argparse
+from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit import prompt
+from types import SimpleNamespace
 
+def validate(text):
+    if len(text) < 4:
+        raise ValidationError(message='太短了', cursor_position=len(text)) # InputError('太短了')
+    if not text.endswith('test'):
+        raise ValidationError(message='结尾不是test', cursor_position=len(text)) # InputError('结尾不是test')
+    return text
+       
+validator1 = Validator.from_callable(
+    validate,
+    error_message='长度大于4，并且以test结尾',
+    move_cursor_to_end=True
+)
+
+def is_number(text):
+    return text.isdigit()
+
+validator2 = Validator.from_callable(
+    is_number,
+    error_message='This input contains non-numeric characters',
+    move_cursor_to_end=True
+)
+
+def get_arg():
+    try:
+        parser = argparse.ArgumentParser(description="这是一个示例脚本，说明如何使用argparse处理命令行参数。")
+        parser.add_argument("param1", type=int, help="第一个参数的说明")
+        parser.add_argument("param2", type=validate, help="第二个参数的说明")
+        args = parser.parse_args()
+    except SystemExit as e:
+        if e.code == 0:
+            raise  # -h参数结束程序
+        arg1 = prompt("param1(整数): ", default="1.0", validator=validator2)
+        arg2 = prompt("param2: ", validator=validator1)
+        args = SimpleNamespace(param1=arg1, param2=arg2)
+    except:
+        arg1 = prompt("param1(整数): ", default="1.0", validator=validator2)
+        arg2 = prompt("param2: ", validator=validator1)
+        args = SimpleNamespace(param1=arg1, param2=arg2)
+
+    print(f"参数1: {args.param1}, 参数2: {args.param2}")
+    return args
+```
+
+```python
+# a.py
+
+from b import get_arg
+
+
+if __name__ == '__main__':
+    a = get_arg()
+    print(a)
+```
+
+但是有两个问题没想明白，假如允许一个整数参数0（比如redis数据库，0-15还是多少），那么这种情况就只能给argparse和prompt_toolkit写两份函数吗
+另外except里面能够不写重复的代码吗
 
 
 ## 其他办法
