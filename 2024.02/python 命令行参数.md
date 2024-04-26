@@ -22,7 +22,7 @@
 稍微要注意一下ValidationError的用法，有message和cursor_position两个参数，
 
 
-```
+```python
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt
 
