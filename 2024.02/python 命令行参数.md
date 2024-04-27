@@ -44,6 +44,7 @@ print('You said: %s' % s)
 ## 实践方案
 
 [pydantic](https://github.com/pydantic/pydantic)(18k)
+
 [prompt_toolkit validator](https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.validation.Validator)
 文档里说:
 
@@ -51,6 +52,8 @@ print('You said: %s' % s)
 abstract validate(document: Document) → None
 Validate the input. If invalid, this should raise a ValidationError.
 ```
+所以是根据是否报错来看是否通过，然后通过return text，就可以
+
 
 ```python
 # b.py
@@ -59,25 +62,30 @@ from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt
 from types import SimpleNamespace
 
-def validate(text):
+def validate1(text):
     if len(text) < 4:
         raise ValidationError(message='太短了', cursor_position=len(text)) # InputError('太短了')
     if not text.endswith('test'):
         raise ValidationError(message='结尾不是test', cursor_position=len(text)) # InputError('结尾不是test')
     return text
-       
-def is_number(text):
-    return text.isdigit() and (0 <= eval(text) < 15)
-
-class validator1(Validator):
+     
+class Validator1(Validator):
     def validate(self, document):
         text = document.text
-        validate(text)
-
+        validate1(text)
+        
+def validate2(text):
+    # Validator.from_callable这种校验方式需要返回True或者False
+    # 如果需要各种详细信息，需要
+    # if not <condition>:
+    #     raise ValidationError(message='原因', cursor_position=len(text))
+    # if not <condition>:
+    #     raise ...
+    return text.isdigit() and (0 <= eval(text) < 15)
 
 validator2 = Validator.from_callable(
-    is_number,
-    error_message='This input contains non-numeric characters',
+    validate2,
+    error_message='不符合规范',
     move_cursor_to_end=True
 )
 
@@ -85,8 +93,9 @@ def get_arg():
     args = None
     try:
         parser = argparse.ArgumentParser(description="这是一个示例脚本，说明如何使用argparse处理命令行参数。")
-        parser.add_argument("param1", type=lambda x: x if is_number(x) else 1/0, help="第一个参数的说明")
-        parser.add_argument("param2", type=lambda x: x if validate(x) else 1/0, help="第二个参数的说明")
+        parser.add_argument("param1", type=validate1, help="第二个参数的说明")
+        parser.add_argument("param2", type=lambda x: x if validate2(x) else 1/0, help="第一个参数的说明")
+        
         args = parser.parse_args()
     except SystemExit as e:
         if e.code == 0:
@@ -96,8 +105,8 @@ def get_arg():
     except:
         print('参数填写不正确，请重新填写：')
     if args is None:
-        arg1 = prompt("param1(整数): ", default="1.0", validator=validator2)
-        arg2 = prompt("param2: ", validator=validator1)
+        arg1 = prompt("param1: ", validator=Validator1())
+        arg2 = prompt("param2(整数): ", default="1.0", validator=validator2)
         args = SimpleNamespace(param1=arg1, param2=arg2)
 
     print(f"参数1: {args.param1}, 参数2: {args.param2}")
@@ -106,18 +115,18 @@ def get_arg():
 
 ```python
 # a.py
-
 from b import get_arg
-
-
 if __name__ == '__main__':
     a = get_arg()
     print(a)
 ```
 
-但是有两个问题没想明白，假如允许一个整数参数0（比如redis数据库，0-15还是多少），那么这种情况就只能给argparse和prompt_toolkit写两份函数吗
-另外except里面能够不写重复的代码吗
-
+```bash
+python a.py -h  # 查看参数
+python a.py test 1  # 正确运行
+python a.py  # 直接开始使用toolkit获取参数
+python a.py t a  # 参数不正确，使用toolkit获取参数
+```
 
 ## 其他办法
 
