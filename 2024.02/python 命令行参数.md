@@ -44,6 +44,13 @@ print('You said: %s' % s)
 ## 实践方案
 
 [pydantic](https://github.com/pydantic/pydantic)(18k)
+[prompt_toolkit validator](https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.validation.Validator)
+文档里说:
+
+```
+abstract validate(document: Document) → None
+Validate the input. If invalid, this should raise a ValidationError.
+```
 
 ```python
 # b.py
@@ -57,17 +64,16 @@ def validate(text):
         raise ValidationError(message='太短了', cursor_position=len(text)) # InputError('太短了')
     if not text.endswith('test'):
         raise ValidationError(message='结尾不是test', cursor_position=len(text)) # InputError('结尾不是test')
-    return True
+    return text
        
 def is_number(text):
     return text.isdigit() and (0 <= eval(text) < 15)
 
+class validator1(Validator):
+    def validate(self, document):
+        text = document.text
+        validate(text)
 
-validator1 = Validator.from_callable(
-    validate,
-    error_message='长度大于4，并且以test结尾',
-    move_cursor_to_end=True
-)
 
 validator2 = Validator.from_callable(
     is_number,
