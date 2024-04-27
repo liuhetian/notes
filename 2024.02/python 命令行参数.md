@@ -64,9 +64,9 @@ from types import SimpleNamespace
 
 def validate1(text):
     if len(text) < 4:
-        raise ValidationError(message='太短了', cursor_position=len(text)) # InputError('太短了')
+        raise ValidationError(message='太短了', cursor_position=len(text))
     if not text.endswith('test'):
-        raise ValidationError(message='结尾不是test', cursor_position=len(text)) # InputError('结尾不是test')
+        raise ValidationError(message='结尾不是test', cursor_position=len(text))
     return text
      
 class Validator1(Validator):
@@ -94,8 +94,7 @@ def get_arg():
     try:
         parser = argparse.ArgumentParser(description="这是一个示例脚本，说明如何使用argparse处理命令行参数。")
         parser.add_argument("param1", type=validate1, help="第二个参数的说明")
-        parser.add_argument("param2", type=lambda x: x if validate2(x) else 1/0, help="第一个参数的说明")
-        
+        parser.add_argument("param2", type=lambda x: x if validate2(x) else 1/0, help="第一个参数的说明")  # 不常用
         args = parser.parse_args()
     except SystemExit as e:
         if e.code == 0:
