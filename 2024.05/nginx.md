@@ -85,3 +85,11 @@ location ^~ /v1/ {
 location ^~ /v1/ {
     proxy_pass http://host.docker.internal:8000/;
 ```
+
+
+## 很坑的情况
+1. docker 挂载进容器的文件修改后没有改变
+解决办法1: `chmod 666 /root/test.txt` 给这个文件更多权限
+其他解决办法：不挂载文件，而是挂载文件夹；使用 cat 重定向来修改文件，而不是使用 vim 或者 vi
+
+3. 撒
