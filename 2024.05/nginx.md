@@ -38,16 +38,24 @@ http {
         listen       80;
         server_name  localhost;
 
-        location / {
-            proxy_pass http://host.docker.internal:8000;
-            proxy_buffering off;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        location ^~ /v1/ {
+            proxy_pass http://host.docker.internal:8000/;
+            proxy_http_version 1.1;
+            proxy_cache off;  # 关闭缓存
+            proxy_buffering off;  # 关闭代理缓冲
+            chunked_transfer_encoding on;  # 开启分块传输编码
+            tcp_nopush on;  # 开启TCP NOPUSH选项，禁止Nagle算法
+            tcp_nodelay on;  # 开启TCP NODELAY选项，禁止延迟ACK算法
+            keepalive_timeout 300;  # 设定keep-alive超时时间为65秒
+
+            #proxy_set_header Host $host;
+            #proxy_set_header X-Real-IP $remote_addr;
+            #proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 
-        location /api {
-            proxy_pass http://host.docker.internal:8001;
+        location /v2/ {
+            proxy_pass http://host.docker.internal:8001/;
+            proxy_http_version 1.1;
         }
 
         location /service2 {
@@ -59,4 +67,21 @@ http {
 
 ``` bash
 docker run --name nginx -p 80:80 -v /home/lighthouse/nginx/nginx.conf:/etc/nginx/nginx.conf:ro --add-host=host.docker.internal:host-gateway -d nginx
+```
+
+## location配置
+
+1. 只改变端口，路径完全保持不变
+例如有一个服务 locolhost:8000/v1/chat/xxx
+于是希望访问localhost:80/v1/<任何>路径转到/localhost:8000/v1/<任何> 路径
+
+```
+location ^~ /v1/ {
+    proxy_pass http://host.docker.internal:8000;
+```
+
+注意，下面的情况不行，会少一个v1
+```
+location ^~ /v1/ {
+    proxy_pass http://host.docker.internal:8000/;
 ```
